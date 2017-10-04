@@ -9,3 +9,7 @@ def hello():
 @app.route("/price")
 def bitcoin_euro():
     return get_bitcoin_euro()
+
+@app.route("/health")
+def health_point():
+    return 'Up'
