@@ -16,7 +16,7 @@ def get_bitcoin_euro():
         return res
 
 def get_bitcoin_ref_price():
-        csvfile = open('C:\\Homeware\\DormeCorp\\database\\refprice.csv', 'rt' )
+        csvfile = open('..\\database\\refprice.csv', 'rt' )
         try:
             reader = csv.reader(csvfile)
             for row in reader:
@@ -29,7 +29,7 @@ def get_bitcoin_ref_price():
         return res
 
 def set_bitcoin_ref_price(new_price):
-    csvfile = open('C:\\Homeware\\DormeCorp\\database\\refprice.csv', 'wt')
+    csvfile = open('..\\database\\refprice.csv', 'wt')
     try:
         writer = csv.writer(csvfile)
         row = []
