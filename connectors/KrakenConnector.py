@@ -12,7 +12,12 @@ class KrakenConnector():
         return self.k.query_private('Balance')
 
     def get_market_depth(self, depth=1):
-        return self.k.query_public('Depth', {'pair': 'XXBTZEUR', 'count': str(depth)})
+
+        res = self.k.query_public('Depth', {'pair': 'XXBTZEUR', 'count': str(depth)})
+        if res['error'] == []:
+            return res['result']['XXBTZEUR']
+        else:
+            return res['error']
 
     def place_conditionnal_order(self, way, ordertype,price,volume):
         return self.k.query_private('AddOrder',
