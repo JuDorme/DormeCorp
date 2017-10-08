@@ -2,6 +2,7 @@ from connectors.KrakenConnector import KrakenConnector
 from connectors.RockConnector import RockConnector
 from domain.Order import Order
 from domain.Order import OrderWay
+from domain.Order  import OrderOrigin
 import threading
 
 import logging
@@ -56,7 +57,7 @@ def arbitrage_detector():
     #quantity
 
 
-    log.info('I can buy at ' + str(best_ask.price) + ' and sell at ' + str(best_bid.price) + ' profit brut ' + str(round((best_bid.price/best_ask.price-1)*100,2)) + '%' + ' qte buy/sell ' + str(best_ask.quantity) + ' / ' + str(best_bid.quantity))
+    log.info('I can buy at ' + str(best_ask.price) + ' and sell at ' + str(best_bid.price) + ' profit brut ' + str(round((best_bid.price/best_ask.price-1)*100,2)) + '%' + ' qte buy/sell ' + str(best_ask.quantity) + ' / ' + str(best_bid.quantity) + ' buy ' + best_ask.origin.value + ' sell ' + best_bid.origin.value)
     return
 
 
@@ -64,23 +65,35 @@ def arbitrage_detector():
 
 def get_kraken_bid(kraken_market, depth = 0):
     res = Order()
-    res.price = float(kraken_market['bids'][depth][0])
-    res.way = OrderWay.BID
-    res.quantity = float(kraken_market['bids'][depth][1])
-    return res
+    try:
+        res.price = float(kraken_market['bids'][depth][0])
+        res.way = OrderWay.BID
+        res.quantity = float(kraken_market['bids'][depth][1])
+        res.origin = OrderOrigin.KRAKEN
+        return res
+    except :
+        log.info(kraken_market)
+        return res
 
 def get_kraken_ask(kraken_market, depth=0):
     res = Order()
-    res.price = float(kraken_market['asks'][depth][0])
-    res.way = OrderWay.ASK
-    res.quantity = float(kraken_market['asks'][depth][1])
-    return res
+
+    try:
+        res.price = float(kraken_market['asks'][depth][0])
+        res.way = OrderWay.ASK
+        res.quantity = float(kraken_market['asks'][depth][1])
+        res.origin = OrderOrigin.KRAKEN
+        return res
+    except:
+        log.info(kraken_market)
+        return res
 
 def get_rock_bid(rock_market, depth = 0):
     res = Order()
     res.price = float(rock_market['bids'][depth]['price'])
     res.way = OrderWay.BID
     res.quantity = float(rock_market['bids'][depth]['amount'])
+    res.origin = OrderOrigin.ROCK
     return res
 
 def get_rock_ask(rock_market, depth = 0):
@@ -88,6 +101,7 @@ def get_rock_ask(rock_market, depth = 0):
     res.price = float(rock_market['asks'][depth]['price'])
     res.way = OrderWay.ASK
     res.quantity = float(rock_market['asks'][depth]['amount'])
+    res.origin = OrderOrigin.ROCK
     return res
 
 def get_best_bid(order_list):
