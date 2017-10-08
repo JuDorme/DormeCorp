@@ -1,12 +1,12 @@
 import krakenex
 from enum import Enum
 
-class krakenConnector():
+class KrakenConnector():
+
 
     def __init__(self):
-        self.data = []
-        k = krakenex.API()
-        k.load_key('..\\..\\kraken.key')
+        self.k = krakenex.API()
+        self.k.load_key('..\\..\\kraken.key')
 
     def get_balance(self):
         return self.k.query_private('Balance')
@@ -22,6 +22,8 @@ class krakenConnector():
                          'price': price,
                          'volume': volume,
                          })
+    def get_open_orders(self):
+        return self.k.query_private('OpenOrders')
 
     def get_open_positions(self):
         # prepare request
@@ -32,23 +34,11 @@ class krakenConnector():
         open_positions = self.k.query_private('OpenPositions', req_data)
         end = self.k.query_public('Time')
         latency = end['result']['unixtime'] - start['result']['unixtime']
+        return  open_positions
 
-        # parse result
-        dict(open_positions)
+    def cancel_order(self, txid):
+        txid_data = {'txid' : txid}
+        return self.k.query_private('CancelOrder',txid_data)
 
-        b = 0
-        c = 0
-        for i in open_positions['result']:
-            order = open_positions['result'][i]
-            if (order['pair'] == 'XETHZEUR'):
-                b += (float(order['vol']))
-            if (order['pair'] == 'XXBTZEUR'):
-                c += (float(order['vol']))
-        return c
-
-    def cancel_orders(self):
-        #id necessary ? to check.
-        return self.k.query_private('CancelOrder')
-
-class krakenOrderType(Enum):
+class KrakenOrderType(Enum):
     LIMIT = 'orderlimit'
